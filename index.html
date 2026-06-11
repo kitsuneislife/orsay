@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#03101a" />
+  <title>✦ nosso diário ✦</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=VT323&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:    #03101a;
+      --teal:  #5ce6d0;
+      --lime:  #aaff55;
+      --sky:   #5ab4ff;
+      --pink:  #ff6b9d;
+      --lav:   #c4a0ff;
+      --coral: #ff5a4a;
+      --warm:  #ffe566;
+      --paper: #f7f5ec;
+      --vt:    'VT323', monospace;
+      --hand:  'Caveat', cursive;
+    }
+
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      background: var(--bg);
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      font-family: var(--vt);
+    }
+
+    #bg-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+
+    /* floating hearts */
+    @keyframes float-heart {
+      0%    { opacity: 0; transform: translateY(0) scale(0) rotate(0deg); }
+      8%    { opacity: .7; transform: translateY(-30px) scale(1); }
+      100%  { opacity: 0; transform: translateY(-220px) scale(.6) rotate(25deg); }
+    }
+    .hrt {
+      position: fixed; bottom: 0; z-index: 4; pointer-events: none;
+      color: var(--pink); font-size: 14px; opacity: 0;
+      animation: float-heart var(--d,7s) ease-in var(--dl,0s) infinite;
+    }
+
+    .wrap { max-width: 560px; margin: 0 auto; position: relative; z-index: 5; }
+
+    /* ── RAINBOW SWELL ── */
+    .swell {
+      height: 6px;
+      background: linear-gradient(90deg,#ff5a4a,#ffb347,#ffe566,#aaff55,#5ce6d0,#5ab4ff,#c4a0ff);
+      box-shadow: 0 0 14px rgba(92,230,208,.4);
+    }
+    .swell.thin { height: 3px; opacity: .65; }
+
+    /* ── TRAPAR WAVES ── */
+    .trapar {
+      height: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='28' viewBox='0 0 120 28'%3E%3Cpath d='M0 14 Q30 0 60 14 T120 14' fill='none' stroke='%23aaff55' stroke-width='1.5' opacity='.45'/%3E%3Cpath d='M0 20 Q30 6 60 20 T120 20' fill='none' stroke='%235ce6d0' stroke-width='1' opacity='.28'/%3E%3C/svg%3E");
+      background-repeat: repeat-x; background-size: 120px 28px;
+      animation: wave 6s linear infinite;
+    }
+    @keyframes wave { to { background-position-x: 120px; } }
+
+    /* ── FAIRY LIGHTS ── */
+    .lights {
+      display: flex; justify-content: center; gap: 16px;
+      padding: 10px 16px 4px; position: relative;
+    }
+    .lights::before {
+      content: ''; position: absolute;
+      top: 17px; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 4%, rgba(255,255,255,.18) 20%, rgba(255,255,255,.18) 80%, transparent 96%);
+    }
+    .bulb {
+      width: 10px; height: 14px; border-radius: 40% 40% 50% 50%; flex-shrink: 0;
+      animation: bulb-glow 2s ease-in-out infinite;
+    }
+    @keyframes bulb-glow { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.8)} }
+
+    /* ── HEADER ── */
+    header { text-align: center; padding: 22px 14px 16px; }
+
+    .pre-title {
+      font-size: 14px; color: var(--lime);
+      letter-spacing: 3px; text-shadow: 0 0 8px rgba(170,255,85,.5);
+      margin-bottom: 6px;
+    }
+    .site-title {
+      font-size: 48px; line-height: 1;
+      color: var(--pink); letter-spacing: 2px;
+      text-shadow: 0 0 12px rgba(255,107,157,.7), 0 0 36px rgba(255,107,157,.3);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .site-sub { margin-top: 6px; font-size: 17px; color: oklch(70% .08 350); letter-spacing: 1.5px; }
+
+    .blink { animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .sp { display: inline-block; animation: sp 2.2s ease-in-out infinite; }
+    .sp2 { animation-delay: 1.1s; }
+    @keyframes sp { 50% { transform: rotate(20deg) scale(1.25); opacity: .45; } }
+
+    /* days counter */
+    .days-box {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 14px;
+      background: rgba(255,107,157,.08);
+      border: 1.5px solid rgba(255,107,157,.45);
+      padding: 6px 20px;
+      box-shadow: 0 0 14px rgba(255,107,157,.15);
+    }
+    .days-lbl  { font-size: 14px; color: oklch(62% .1 350); letter-spacing: 1.5px; }
+    .days-num  { font-size: 32px; color: var(--pink); text-shadow: 0 0 10px rgba(255,107,157,.55); }
+    .days-unit { font-size: 14px; color: oklch(62% .1 350); letter-spacing: 1.5px; }
+
+    /* marquee */
+    .mq-wrap { overflow: hidden; margin-top: 10px; white-space: nowrap; }
+    .mq-inner {
+      display: inline-block; animation: mq 22s linear infinite;
+      font-size: 15px; color: oklch(68% .09 10); letter-spacing: 1.5px;
+    }
+    @keyframes mq { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+    /* ── SECTION HEADING ── */
+    .sec-head {
+      display: flex; align-items: center; gap: 10px;
+      margin: 34px 14px 16px;
+      font-size: 22px; color: var(--pink); letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(255,107,157,.4);
+    }
+    .sec-head::before, .sec-head::after {
+      content:''; flex:1; height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,107,157,.5), transparent);
+    }
+
+    /* ── POLAROIDS ── */
+    .pol {
+      background: #fff;
+      padding: 8px; padding-bottom: 34px;
+      box-shadow: 3px 5px 20px rgba(0,0,0,.55);
+      transform: rotate(var(--r,0deg));
+      position: relative; flex-shrink: 0;
+    }
+    .pol .cap {
+      position: absolute; bottom: 5px; left: 4px; right: 4px;
+      text-align: center;
+      font-family: var(--hand); font-size: 15px; color: #3a2020;
+    }
+    .pol .wt {
+      position: absolute; top: -12px; left: 50%;
+      transform: translateX(-50%) rotate(var(--wr,-2deg));
+      width: 58px; height: 22px;
+      background: var(--wc, rgba(255,107,157,.5));
+      background-image: repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(255,255,255,.18) 5px, rgba(255,255,255,.18) 6px);
+      border-radius: 2px;
+    }
+
+    .pol-hero { width: min(280px, calc(100vw - 64px)); }
+    .pol-hero image-slot { width:100%; aspect-ratio:1; display:block; }
+
+    .pol-center { display:flex; justify-content:center; padding:24px 14px; }
+
+    .pol-row { display:flex; gap:14px; justify-content:center; padding:24px 14px; }
+    .pol-md   { width: calc(50vw - 32px); max-width: 178px; }
+    .pol-md image-slot { width:100%; aspect-ratio:1; display:block; }
+
+    .pol-trio { display:flex; gap:10px; justify-content:center; padding:22px 14px; }
+    .pol-sm   { width: calc(33vw - 22px); max-width: 128px; }
+    .pol-sm image-slot { width:100%; aspect-ratio:1; display:block; }
+
+    /* ── DIARY CARDS ── */
+    .feed { display:flex; flex-direction:column; gap:30px; padding:0 14px; }
+
+    .card {
+      position: relative;
+      background-color: var(--tint, var(--paper));
+      background-image: repeating-linear-gradient(
+        transparent 0px, transparent 31px,
+        #bfd0e0 31px, #bfd0e0 32px
+      );
+      border-left: 3px solid var(--ml, #ffb3c0);
+      padding: 52px 14px 16px 18px;
+      transform: rotate(var(--r, 0deg));
+      width: 100%;
+      box-shadow: inset 10px 0 16px -12px rgba(0,0,0,.1),
+                  4px 5px 0 rgba(0,0,0,.28),
+                  6px 8px 24px rgba(0,0,0,.42);
+    }
+    .holes { position:absolute; top:-8px; left:50%; transform:translateX(-50%); display:flex; gap:18px; }
+    .hole  { width:16px; height:16px; border-radius:50%; background:var(--bg); border:1px solid rgba(255,255,255,.07); box-shadow:inset 0 1px 4px rgba(0,0,0,.7); }
+    .tape  {
+      position:absolute; top:-13px; left:50%;
+      transform:translateX(-50%) rotate(var(--tr,-2deg));
+      width:70px; height:24px;
+      background:var(--tc, rgba(255,107,157,.5));
+      background-image:repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,.17) 5px,rgba(255,255,255,.17) 6px);
+      border-radius:2px;
+    }
+    .card-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; font-size:16px; }
+    .cnum  { color:oklch(48% .07 230); letter-spacing:.5px; }
+    .cdate { color:oklch(46% .12 350); }
+    .dear  { font-family:var(--hand); font-size:21px; font-weight:700; color:#1e2c30; line-height:32px; }
+    .ctxt  { font-family:var(--hand); font-size:18px; line-height:32px; color:#212f34; text-wrap:pretty; }
+    .cfoot { display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
+    .mood  { font-size:14px; padding:3px 10px; letter-spacing:.5px; background:var(--tc); color:#1e2c30; }
+    .btn-like {
+      background:none; border:none; cursor:pointer;
+      font-family:var(--vt); font-size:18px;
+      color:oklch(48% .07 230); padding:6px 10px; min-height:36px;
+      -webkit-tap-highlight-color:transparent; transition:color .15s;
+    }
+    .btn-like.on { color:var(--pink); }
+
+    /* card themes */
+    .cpink { --tc:rgba(255,107,157,.48); --tr:-2deg;   --tint:#fdf3f5; --ml:#ffa0c0; }
+    .cteal { --tc:rgba(92,230,208,.45);  --tr: 1.6deg; --tint:#f0faf7; --ml:#80cec3; }
+    .clav  { --tc:rgba(196,160,255,.42); --tr:-1.4deg; --tint:#f6f3ff; --ml:#b8a0e8; }
+    .clime { --tc:rgba(170,255,85,.42);  --tr: 2.0deg; --tint:#f4faec; --ml:#a0cc70; }
+    .csky  { --tc:rgba(90,180,255,.42);  --tr:-0.8deg; --tint:#f0f6fd; --ml:#88b8e8; }
+    .cwarm { --tc:rgba(255,229,100,.48); --tr: 1.8deg; --tint:#fdfaee; --ml:#d8b840; }
+    .ccoral{ --tc:rgba(255,90,74,.4);    --tr:-1.6deg; --tint:#fff2f0; --ml:#e89080; }
+
+    .r1 { --r:-1.4deg } .r2 { --r:1.1deg } .r3 { --r:-0.7deg }
+    .r4 { --r:1.6deg  } .r5 { --r:-1.2deg} .r6 { --r:0.7deg  } .r7 { --r:-1.9deg }
+
+    /* ── LOVE LIST (sticky note) ── */
+    .love-list {
+      margin: 0 14px;
+      background: #fdfaee;
+      background-image: repeating-linear-gradient(transparent 0px, transparent 31px, #d0c070 31px, #d0c070 32px);
+      border-left: 3px solid #d4aa30;
+      padding: 46px 16px 16px 18px;
+      box-shadow: 4px 5px 0 rgba(0,0,0,.25), 6px 8px 22px rgba(0,0,0,.4);
+      transform: rotate(-0.6deg);
+      position: relative;
+    }
+    .love-list .holes { top: -8px; }
+    .love-list .hole  { background: var(--bg); }
+    .love-list .tape  { --tc: rgba(255,229,100,.55); --tr: 1.5deg; }
+    .love-list-title {
+      font-family: var(--hand); font-size: 22px; font-weight: 700;
+      color: #2a1c00; line-height: 32px; margin-bottom: 2px;
+    }
+    .love-list ul { list-style: none; display: flex; flex-direction: column; }
+    .love-list li {
+      font-family: var(--hand); font-size: 18px;
+      line-height: 32px; color: #251800;
+      display: flex; gap: 8px; align-items: baseline;
+    }
+    .love-list li::before { content:'♡'; color:#c04060; flex-shrink:0; }
+
+    /* ── CARTA ── */
+    .carta {
+      margin: 0 14px;
+      background: #fdfaee;
+      padding: 20px 18px 20px;
+      box-shadow: 3px 5px 0 rgba(0,0,0,.25), 6px 8px 22px rgba(0,0,0,.42);
+      transform: rotate(0.5deg);
+      border-top: 3px solid var(--pink);
+      position: relative;
+    }
+    .carta::before {
+      content: '✉';
+      position: absolute; top: -18px; right: 14px;
+      font-size: 30px; color: var(--pink);
+      text-shadow: 0 0 10px rgba(255,107,157,.5);
+    }
+    .carta-from  { font-family:var(--hand); font-size:22px; font-weight:700; color:#2a1020; margin-bottom:10px; }
+    .carta-body  { font-family:var(--hand); font-size:19px; line-height:1.78; color:#2a1020; text-wrap:pretty; }
+    .carta-body p + p { margin-top: 12px; }
+    .carta-sign  { margin-top:14px; font-family:var(--hand); font-size:22px; font-weight:700; color:var(--pink); text-align:right; }
+
+    /* ── E7 MINI SHRINE ── */
+    .e7-shrine {
+      margin: 0 14px;
+      border: 2px solid var(--teal);
+      background: rgba(3,20,28,.82);
+      box-shadow: 0 0 16px rgba(92,230,208,.22);
+      padding: 14px;
+    }
+    .e7-title {
+      font-size: 20px; color: var(--teal); letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(92,230,208,.5);
+      text-align: center; margin-bottom: 12px;
+    }
+    .e7-row { display:flex; gap:12px; }
+    .e7-row image-slot { flex:1; height:130px; display:block; }
+    .e7-note {
+      margin-top: 10px;
+      font-family: var(--hand); font-size: 17px;
+      color: oklch(78% .07 190); text-align: center; line-height: 1.55;
+    }
+    .e7-note strong { color: var(--teal); font-weight:600; }
+
+    /* ── TICKET STUB ── */
+    .ticket {
+      margin: 0 14px;
+      background: #faf7ff;
+      border: 2px dashed var(--lav);
+      display: flex; align-items: stretch;
+      box-shadow: 3px 4px 0 rgba(0,0,0,.25), 5px 7px 20px rgba(0,0,0,.38);
+      transform: rotate(-0.8deg);
+      overflow: hidden;
+    }
+    .ticket-side {
+      background: var(--lav);
+      width: 44px; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px;
+    }
+    .ticket-side span {
+      font-family: var(--hand); font-size: 13px; color: #1c0e30;
+      writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 1px;
+    }
+    .ticket-body { padding: 12px 14px; flex: 1; }
+    .ticket-head {
+      font-size: 22px; color: var(--lav); letter-spacing: 1.5px;
+      text-shadow: 0 0 8px rgba(196,160,255,.4); margin-bottom: 8px;
+    }
+    .ticket-line {
+      font-family: var(--hand); font-size: 17px; color: #2a1f3e;
+      line-height: 1.6; display: flex; gap: 8px; align-items: baseline;
+    }
+    .ticket-line::before { content:'✦'; color:var(--lav); flex-shrink:0; }
+
+    /* ── BADGES ── */
+    .badges { display:flex; flex-wrap:wrap; gap:9px; justify-content:center; padding:0 14px; }
+    .badge {
+      width:88px; height:31px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:13px; letter-spacing:.5px; border:1px solid;
+      text-align:center; line-height:1.1; user-select:none;
+    }
+    .b1 { color:var(--teal);  border-color:var(--teal);  background:#021b1a; }
+    .b2 { color:#fff;         border-color:var(--pink);  background:var(--pink); }
+    .b3 { color:var(--pink);  border-color:var(--pink);  background:#1c0410; }
+    .b4 { color:#031204;      border-color:var(--lime);  background:var(--lime); }
+    .b5 { color:var(--lav);   border-color:var(--lav);   background:#100a1c; }
+    .b6 { color:#201a02;      border-color:var(--warm);  background:var(--warm); }
+
+    footer {
+      text-align:center; padding:28px 16px 40px;
+      font-size:14px; color:oklch(48% .06 350); letter-spacing:1.2px; line-height:2;
+    }
+    footer .h { color:var(--pink); }
+
+    .spacer { height: 28px; }
+    .spacer-sm { height: 14px; }
+
+    /* customs*/
+    .olhinhos {
+      width: 125px; 
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div id="hrt-layer" aria-hidden="true"></div>
+
+<div class="wrap">
+
+  <!-- ── FAIRY LIGHTS ── -->
+  <div class="lights" id="lights" aria-hidden="true"></div>
+
+  <!-- ── HEADER ── -->
+  <header>
+    <p class="pre-title">♡ FELIZ DIA DOS NAMORADOS ♡</p>
+    <div class="site-title">
+      <span class="sp">✦</span>
+      <span style="margin-left: -30px">nosso diário</span>
+      <span class="blink">_</span><span class="sp sp2">✦</span>
+    </div>
+    <p class="site-sub">surfando as ondas de trapar juntinhos ♡</p>
+
+    <!--div class="days-box">
+      <span class="days-lbl">juntos há</span>
+      <span class="days-num" id="days-count">—</span>
+      <span class="days-unit">dias</span>
+    </div-->
+
+    <img src="https://files.catbox.moe/2sj9w1.png" class="olhinhos" aria-hidden="true" />
+
+    <div class="mq-wrap" aria-hidden="true">
+      <span class="mq-inner">
+        ♡ Eu te amo muito ♡ &nbsp;&nbsp;
+        ✦ como o Nirvash, eu te escolho ✦ &nbsp;&nbsp;
+        ♪ DAYS — FLOW · our forever song ♪ &nbsp;&nbsp;
+      </span>
+    </div>
+  </header>
+
+  <div class="trapar" aria-hidden="true"></div>
+
+  <!-- ── HERO POLAROID ── -->
+  <div class="pol-center">
+    <div class="pol pol-hero" style="--r:-1.5deg">
+      <div class="wt" style="--wc:rgba(255,107,157,.55);--wr:1.2deg"></div>
+      <img src="https://files.catbox.moe/ctlm6n.jpg" id="pol-hero" shape="rect" placeholder="nossa foto favorita ♡" style="width: 265px; height: auto; display: block;" />
+      <span class="cap">romantico ✦</span>
+    </div>
+  </div>
+
+  <!-- ── CARD 1: como tudo começou ── -->
+  <div class="feed">
+    <article class="card cpink r1">
+      <div class="holes" aria-hidden="true"><span class="hole"></span><span class="hole"></span><span class="hole"></span></div>
+      <div class="tape" aria-hidden="true"></div>
+      <div class="card-head">
+        <span class="cnum">memória #001</span>
+        <span class="cdate">30/05/2026</span>
+      </div>
+      <p class="dear">meu amor,</p>
+      <p class="ctxt">nesse dia você pediu pra namorar comigo. a gente teve uma conversa enorme sobre nossos sentimentos — e às 21:40 desse mesmo dia, você disse "eu te amo" pela primeira vez. eu nunca me senti tão feliz quanto a partir desse momento.</p>
+      <div class="cfoot">
+        <span class="mood">mood: xonadinho ♡</span>
+        <button class="btn-like" data-t="l">♡</button>
+      </div>
+    </article>
+  </div>
+
+  <!-- ── 2 POLAROIDS ── -->
+  <div class="pol-row">
+    <div class="pol pol-md" style="--r:-2.2deg">
+      <div class="wt" style="--wc:rgba(92,230,208,.5);--wr:-1deg"></div>
+      <img src="https://files.catbox.moe/dhw00f.png" id="pol-2" shape="rect" placeholder=" ♡" style="width: 160px; height: auto; display: block;" />
+      <span class="cap">a capa da nossa playlist ★</span>
+    </div>
+    <div class="pol pol-md" style="--r:1.8deg">
+      <div class="wt" style="--wc:rgba(170,255,85,.5);--wr:2deg"></div>
+      <img src="https://files.catbox.moe/o2iez7.jpg" id="pol-3" shape="rect" placeholder="a nossa ♡" style="width: 160px; height: auto; display: block;" />
+      <span class="cap">juntos ✦</span>
+    </div>
+  </div>
+
+  <!-- ── CARD 2 ── -->
+  <div class="feed">
+    <article class="card cteal r2">
+      <div class="holes" aria-hidden="true"><span class="hole"></span><span class="hole"></span><span class="hole"></span></div>
+      <div class="tape" aria-hidden="true"></div>
+      <div class="card-head">
+        <span class="cnum">memória #002</span>
+        <span class="cdate">31/05/2026</span>
+      </div>
+      <p class="dear">meu amor,</p>
+      <p class="ctxt">assistimos Eureka juntos pela primeira vez nesse dia. conversamos muito, ficamos juntos — cada episódio foi mais especial por ser com você do lado. é o começo de algo muito bonito.</p>
+      <div class="cfoot">
+        <span class="mood">mood: encantado ✿</span>
+        <button class="btn-like" data-t="l">♡</button>
+      </div>
+    </article>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- ── LOVE LIST ── -->
+  <div class="love-list">
+    <div class="holes" aria-hidden="true"><span class="hole"></span><span class="hole"></span><span class="hole"></span></div>
+    <div class="tape" aria-hidden="true"></div>
+    <p class="love-list-title">coisas que amo em você</p>
+    <ul>
+      <li>o jeito que você me acolhe quando eu tô ansioso</li>
+      <li>quando você cortou o cabelo e ficou com vergonha (você é lindo demais)</li>
+      <li>as calls que não acabam nunca, mesmo dormindo</li>
+      <li>como você pensa no nosso futuro com tanto carinho</li>
+      <li>sua paciência comigo em absolutamente tudo</li>
+      <li>que você existe na minha vida ♡</li>
+    </ul>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="swell thin" aria-hidden="true"></div>
+  <div class="spacer"></div>
+
+  <!-- ── CARD 3 ── -->
+  <div class="feed">
+    <article class="card clav r3">
+      <div class="holes" aria-hidden="true"><span class="hole"></span><span class="hole"></span><span class="hole"></span></div>
+      <div class="tape" aria-hidden="true"></div>
+      <div class="card-head">
+        <span class="cnum">memória #003</span>
+        <span class="cdate">01 &amp; 02/06/2026</span>
+      </div>
+      <p class="dear">meu amor,</p>
+      <p class="ctxt">dormimos em call juntinhos, ficamos o dia todo conversando na terça. você cortou o cabelo e não gostou — mas eu achei você lindo demais assim mesmo. e colocamos nosso primeiro perfil combinandinho &lt;3</p>
+      <div class="cfoot">
+        <span class="mood">mood: fofo ♡</span>
+        <button class="btn-like" data-t="l">♡</button>
+      </div>
+    </article>
+  </div>
+
+  <!-- ── SINGLE POLAROID ── -->
+  <div class="pol-center">
+    <div class="pol" style="--r:1.4deg; width:min(220px, calc(100vw - 80px))">
+      <div class="wt" style="--wc:rgba(196,160,255,.55);--wr:-1.5deg"></div>
+      <img src="https://files.catbox.moe/3kdbxh.jpg" id="pol-4" shape="rect" placeholder="você ♡" style="width:100%;aspect-ratio:1;display:block">
+      <span class="cap">você ♡</span>
+    </div>
+  </div>
+
+  <!-- ── CARD 4 ── -->
+  <div class="feed">
+    <article class="card clime r4">
+      <div class="holes" aria-hidden="true"><span class="hole"></span><span class="hole"></span><span class="hole"></span></div>
+      <div class="tape" aria-hidden="true"></div>
+      <div class="card-head">
+        <span class="cnum">memória #004</span>
+        <span class="cdate">03/06/2026</span>
+      </div>
+      <p class="dear">meu amor,</p>
+      <p class="ctxt">fomos call o dia todo, conversamos muito, falamos sobre nossos planos pro futuro. até tomamos banho juntos em call — eu achei o mais fofo do mundo sksksk. vai dar tudo certo, vamos ficar juntinhos. agora vamos mimir um pouquinho.</p>
+      <div class="cfoot">
+        <span class="mood">mood: sonhador ✦</span>
+        <button class="btn-like" data-t="l">♡</button>
+      </div>
+    </article>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- ── TICKET STUB ── -->
+  <div class="ticket">
+    <div class="ticket-side"><span>04/06/2026</span></div>
+    <div class="ticket-body">
+      <p class="ticket-head">dia cheinho ✦</p>
+      <p class="ticket-line">Eureka do ep 3 ao ep 10</p>
+      <p class="ticket-line">comecei nosso app de animes hihi</p>
+      <p class="ticket-line">terminei minha playlist pra você</p>
+      <p class="ticket-line">musiquinha juntinhos de noite</p>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- ── CARTA ── -->
+  <div class="carta">
+    <p class="carta-from">para o meu amor,</p>
+    <div class="carta-body">
+      <p>nesses dias com você aprendi que não precisa de nada grandioso pra ser feliz. uma call que não acaba, um episódio novo de Eureka, dormir juntinhos mesmo que seja pela tela — tudo isso é enorme pra mim.</p>
+      <p>você me acolhe, me deixa confortável, pensa no nosso futuro com tanto carinho. quando eu fico ansioso, você tá lá. eu guardo cada um desses momentos aqui com muito amor.</p>
+      <p>vai dar tudo certo. vamos ficar juntinhos ♡</p>
+    </div>
+    <p class="carta-sign">com amor, seu Kit ♡</p>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- ── PREVISÕES ── -->
+  <div class="e7-shrine" style="border-color:var(--lav);box-shadow:0 0 16px rgba(196,160,255,.25);transform:rotate(-0.4deg);">
+    <p class="e7-title" style="color:var(--lav);text-shadow:0 0 8px rgba(196,160,255,.55);">previsões do meu amor ✦</p>
+    <p class="e7-note" style="color:oklch(80% .07 270);font-size:19px;line-height:1.7;">
+      <strong style="color:var(--lav);">✦</strong> o Japão vai ganhar a Copa do Mundo<br>
+      <strong style="color:var(--lav);">✦</strong> quando me ver pela primeira vez,<br>&nbsp;&nbsp;&nbsp;vai apertar minha bochecha
+    </p>
+    <p class="e7-note" style="font-size:14px;color:oklch(52% .08 270);margin-top:8px;">registrado às 14:55 · quarta · 03/06/2026</p>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="carta" style="transform:rotate(-0.5deg);">
+    <p class="carta-from">e eu prevejo...</p>
+    <div class="carta-body">
+      <p>muita fofura, muito amor, muitas bochechas apertadas kskskssk, nós juntos vai ser exatamente o que a gnt precisa.</p>
+      <p>essa é a minha previsão, e eu não tenho a menor dúvida disso ♡</p>
+    </div>
+    <p class="carta-sign">— Kit ✦</p>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- ── CARDS 5, 6, 7 ── -->
+  <div class="feed">
+    <article class="card csky r5">
+      <div class="holes" aria-hidden="true"><span class="hole"></span><span class="hole"></span><span class="hole"></span></div>
+      <div class="tape" aria-hidden="true"></div>
+      <div class="card-head">
+        <span class="cnum">memória #005</span>
+        <span class="cdate">05/06/2026</span>
+      </div>
+      <p class="dear">meu amor,</p>
+      <p class="ctxt">momor foi trabalhar, ficou ocupado, mas conversamos quando deu. de noite ficamos ouvindo música juntinhos e falamos sobre nossos sentimentos. contei mais sobre minha ansiedade — você me acolheu como sempre. meu namorado é incrível. eu amo muito ele.</p>
+      <div class="cfoot">
+        <span class="mood">mood: acolhido ♡</span>
+        <button class="btn-like" data-t="l">♡</button>
+      </div>
+    </article>
+
+    <article class="card ccoral r6">
+      <div class="holes" aria-hidden="true"><span class="hole"></span><span class="hole"></span><span class="hole"></span></div>
+      <div class="tape" aria-hidden="true"></div>
+      <div class="card-head">
+        <span class="cnum">memória #006</span>
+        <span class="cdate">06/06/2026</span>
+      </div>
+      <p class="dear">meu amor,</p>
+      <p class="ctxt">hoje foi meio estranho, me senti um pouco distante. fiquei ansioso, preocupado com você. mas de noite você voltou, a gente se acalmou, e ficamos vendo Eureka até de madrugada. o papai te ligou sobre o RJ — será uma oportunidade? eu amo muito o Orsay.</p>
+      <div class="cfoot">
+        <span class="mood">mood: aliviado ✧</span>
+        <button class="btn-like" data-t="l">♡</button>
+      </div>
+    </article>
+
+    <article class="card cwarm r7">
+      <div class="holes" aria-hidden="true"><span class="hole"></span><span class="hole"></span><span class="hole"></span></div>
+      <div class="tape" aria-hidden="true"></div>
+      <div class="card-head">
+        <span class="cnum">memória #007</span>
+        <span class="cdate">07 → 10/06/2026</span>
+      </div>
+      <p class="dear">meu amor,</p>
+      <p class="ctxt">conversas profundas, os episódios do Charles e da Ray, você no hospital e eu preocupado, o frangavel, o galavel — dias comuns que ficam extraordinários com você. às vezes me sinto estranho, mas sei que vai ficar tudo bem. afinal de contas, eu amo muito o Orsay.</p>
+      <div class="cfoot">
+        <span class="mood">mood: esperançoso ✦</span>
+        <button class="btn-like" data-t="l">♡</button>
+      </div>
+    </article>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="trapar" aria-hidden="true"></div>
+
+  <!-- ── PHOTOCARD ── -->
+  <div class="pol-center">
+    <div class="pol" style="--r:-1.2deg; width:min(320px, calc(100vw - 48px)); padding-bottom:54px; display: flex; justify-content:center">
+      <div class="wt" style="--wc:rgba(255,107,157,.55);--wr:1.4deg; width:80px;"></div>
+      <img src="https://files.catbox.moe/52l27s.png" id="photocard-main" shape="rect" placeholder="nossa foto ♡" style="width:230px;height:auto;display:block;justify-content:center;"></img>
+      <span class="cap" style="font-size:18px; bottom:10px;">Kit ♡ Orsay · 2026</span>
+    </div>
+  </div>
+
+  <footer>
+    <p>feito com <span class="h">♡</span> para o dia dos namorados</p>
+    <p>@ 2026 Kit ♡ Orsay</p>
+    <p>© 2005 BONES / Project EUREKA</p>
+  </footer>
+
+</div><!-- /wrap -->
+
+<script src="image-slot.js"></script>
+<script>
+  /* ── DYNAMIC BACKGROUND CANVAS ── */
+  (function(){
+    var canvas = document.getElementById('bg-canvas');
+    var ctx = canvas.getContext('2d');
+    var W=0, H=0, stars=[], trapars=[], last=0;
+    var swellTimer=0, swellActive=false, swellX=-100;
+
+    var PCOLS=[
+      [92,230,208],[92,230,208],[92,230,208],
+      [170,255,85],[170,255,85],
+      [90,180,255],[255,107,157],[196,160,255]
+    ];
+    var SWELL=[[255,90,74],[255,179,71],[255,229,102],[170,255,85],[92,230,208],[90,180,255],[196,160,255]];
+
+    function resize(){
+      W=canvas.width=window.innerWidth;
+      H=canvas.height=window.innerHeight;
+      build();
+    }
+
+    function build(){
+      stars=[]; trapars=[];
+      for(var i=0;i<88;i++){
+        stars.push({
+          x:Math.random()*W, y:Math.random()*H,
+          r:0.4+Math.random()*1.4,
+          phase:Math.random()*6.28,
+          spd:0.35+Math.random()*1.4,
+          warm:Math.random()<0.18
+        });
+      }
+      for(var j=0;j<52;j++){
+        var c=PCOLS[Math.floor(Math.random()*PCOLS.length)];
+        trapars.push({
+          x:Math.random()*W, by:Math.random()*H, y:0,
+          vx:0.1+Math.random()*0.28,
+          amp:12+Math.random()*34,
+          freq:0.007+Math.random()*0.013,
+          phase:Math.random()*6.28,
+          r:0.8+Math.random()*1.9,
+          a:0.1+Math.random()*0.36,
+          c:c
+        });
+      }
+    }
+
+    function frame(ts){
+      var dt=Math.min(ts-last,80); last=ts;
+      ctx.clearRect(0,0,W,H);
+
+      /* base */
+      ctx.fillStyle='#03101a'; ctx.fillRect(0,0,W,H);
+
+      /* aurora — two breathing radial blobs */
+      var a1=0.05+0.024*Math.sin(ts*0.00037);
+      var a2=0.035+0.02*Math.sin(ts*0.00053+2.1);
+      var g1=ctx.createRadialGradient(W*.28,0,0,W*.28,0,H*.6);
+      g1.addColorStop(0,'rgba(92,230,208,'+a1+')'); g1.addColorStop(1,'transparent');
+      ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
+      var g2=ctx.createRadialGradient(W*.74,0,0,W*.74,0,H*.5);
+      g2.addColorStop(0,'rgba(255,107,157,'+a2+')'); g2.addColorStop(1,'transparent');
+      ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
+      /* subtle bottom warmth */
+      var a3=0.02+0.01*Math.sin(ts*0.00044+1);
+      var g3=ctx.createRadialGradient(W*.5,H,0,W*.5,H,H*.45);
+      g3.addColorStop(0,'rgba(196,160,255,'+a3+')'); g3.addColorStop(1,'transparent');
+      ctx.fillStyle=g3; ctx.fillRect(0,0,W,H);
+
+      /* twinkling stars */
+      for(var i=0;i<stars.length;i++){
+        var s=stars[i];
+        var al=0.18+0.75*(0.5+0.5*Math.sin(s.phase+ts*s.spd*0.001));
+        ctx.globalAlpha=al;
+        ctx.fillStyle=s.warm?'rgb(255,200,220)':'rgb(215,235,255)';
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.28); ctx.fill();
+      }
+      ctx.globalAlpha=1;
+
+      /* trapar particle streams */
+      for(var j=0;j<trapars.length;j++){
+        var p=trapars[j];
+        p.x+=p.vx;
+        p.y=p.by+Math.sin(p.x*p.freq+p.phase+ts*0.00022)*p.amp;
+        if(p.x>W+14){p.x=-14; p.by=Math.random()*H;}
+        /* soft halo */
+        ctx.globalAlpha=p.a*0.25;
+        ctx.fillStyle='rgb('+p.c[0]+','+p.c[1]+','+p.c[2]+')';
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r*3.8,0,6.28); ctx.fill();
+        /* bright core */
+        ctx.globalAlpha=p.a;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28); ctx.fill();
+      }
+      ctx.globalAlpha=1;
+
+      /* seven swell — rainbow sweep every ~14s */
+      swellTimer+=dt;
+      if(swellTimer>14000&&!swellActive){swellActive=true;swellX=-90;swellTimer=0;}
+      if(swellActive){
+        swellX+=dt*0.24;
+        var bw=50;
+        for(var k=0;k<SWELL.length;k++){
+          var sc=SWELL[k];
+          var sx=swellX+(k/SWELL.length)*bw-bw/2;
+          var sg=ctx.createLinearGradient(sx,0,sx+bw/SWELL.length+6,0);
+          sg.addColorStop(0,'transparent');
+          sg.addColorStop(0.5,'rgba('+sc[0]+','+sc[1]+','+sc[2]+',0.075)');
+          sg.addColorStop(1,'transparent');
+          ctx.fillStyle=sg; ctx.fillRect(sx-10,0,bw/SWELL.length+20,H);
+        }
+        if(swellX>W+90) swellActive=false;
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    window.addEventListener('resize',resize);
+    resize();
+    requestAnimationFrame(function(ts){last=ts; requestAnimationFrame(frame);});
+  })();
+
+  /* FAIRY LIGHTS */
+  (function(){
+    var cols=['#5ce6d0','#ff6b9d','#aaff55','#5ab4ff','#c4a0ff','#ffe566','#ff8a7a','#5ce6d0','#ff6b9d','#aaff55'];
+    var c=document.getElementById('lights');
+    cols.forEach(function(col,i){
+      var b=document.createElement('span');
+      b.className='bulb';
+      b.style.background=col;
+      b.style.boxShadow='0 0 7px '+col+', 0 0 16px '+col+'66';
+      b.style.animationDelay=(i*.2)+'s';
+      c.appendChild(b);
+    });
+  })();
+
+  /* FLOATING HEARTS */
+  (function(){
+    var l=document.getElementById('hrt-layer');
+    l.style.cssText='position:fixed;inset:0;z-index:4;pointer-events:none;overflow:hidden;';
+    for(var i=0;i<10;i++){
+      var h=document.createElement('span');
+      h.className='hrt';
+      h.textContent='♡';
+      h.style.left=(8+Math.random()*84)+'vw';
+      h.style.setProperty('--d',(5+Math.random()*6)+'s');
+      h.style.setProperty('--dl',(Math.random()*10)+'s');
+      h.style.fontSize=(9+Math.random()*10)+'px';
+      l.appendChild(h);
+    }
+  })();
+
+  /* DAYS COUNTER — troque para a data real do aniversário de vocês! */
+  (function(){
+    var start=new Date('2026-05-30'); /* ← data do pedido ♡ */
+    var days=Math.max(0,Math.floor((Date.now()-start)/86400000));
+    document.getElementById('days-count').textContent=days;
+  })();
+
+  /* LIKE BUTTONS */
+  document.querySelectorAll('.btn-like').forEach(function(b){
+    b.addEventListener('click',function(){
+      this.classList.toggle('on');
+      this.textContent=this.classList.contains('on')?'♡ !':'♡';
+    });
+  });
+</script>
+</body>
+</html>
